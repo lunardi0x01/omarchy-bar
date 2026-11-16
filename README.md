@@ -1,13 +1,13 @@
 # My Bar
 
 Omarchy's status bar (`omarchy.bar`), cloned with `omarchy plugin clone
-omarchy.bar` from Omarchy 4.5.0, with three additions. Everything else is
+omarchy.bar` from Omarchy 4.5.0, with four additions. Everything else is
 upstream; the first commit in this repo is the unmodified clone, so
 `git diff` against it shows exactly what My Bar changes.
 
 ## What it adds
 
-All three are settings under `bar` in `~/.config/omarchy/shell.json` and
+All four are settings under `bar` in `~/.config/omarchy/shell.json` and
 default to stock behaviour when left out.
 
 | Setting | Default | Effect |
@@ -15,6 +15,7 @@ default to stock behaviour when left out.
 | `locked` | `false` | `true` turns off dragging widgets to reorder them, dragging the bar to another screen edge, and double-click to cycle the background. |
 | `backgroundOpacity` | `1` | Opacity of the opaque background, `0` to `1`. The glassy and clear backgrounds keep their own looks. |
 | `screens` | all screens | Connector names to put a bar on, e.g. `["DP-1", "HDMI-A-1"]`. Handy for leaving out a virtual or mirrored output. |
+| `peekIndicators` | `true` | `false` stops hovering the bar from revealing inactive indicators, so each shows only while it's on. |
 
 ```json
 "bar": {
@@ -22,6 +23,7 @@ default to stock behaviour when left out.
   "locked": true,
   "backgroundOpacity": 0.7,
   "screens": ["DP-1", "HDMI-A-1"],
+  "peekIndicators": false,
   ...
 }
 ```

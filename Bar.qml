@@ -60,6 +60,9 @@ Item {
   // My Bar: bar.locked in shell.json. No widget reordering, no dragging the
   // bar to another edge, and no double-click background cycling.
   property bool locked: false
+  // My Bar: bar.peekIndicators in shell.json. false stops hovering the bar
+  // from revealing inactive indicators, so they show only while active.
+  property bool peekIndicators: true
   // My Bar: bar.backgroundOpacity in shell.json, 0 (invisible) to 1 (solid).
   // Applies to the opaque background; glassy and clear keep their own looks.
   property real backgroundOpacity: 1.0
@@ -808,6 +811,8 @@ Item {
 
     position = normalizePosition(config.position)
     locked = config.locked === true
+    peekIndicators = config.peekIndicators !== false
+    if (!peekIndicators) centerSectionRevealHeld = false
     backgroundOpacity = typeof config.backgroundOpacity === "number"
       ? Math.max(0, Math.min(1, config.backgroundOpacity))
       : 1.0
@@ -1038,7 +1043,7 @@ Item {
     barHoverCount = Math.max(0, barHoverCount + (hovered ? 1 : -1))
     if (barHoverCount > 0) {
       centerSectionRevealTimer.stop()
-      centerSectionRevealHeld = true
+      centerSectionRevealHeld = root.peekIndicators
     } else {
       centerSectionRevealTimer.restart()
     }
