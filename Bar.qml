@@ -57,6 +57,18 @@ Item {
   // A see-through bar that Hyprland blurs behind (the bar-glassy toggle), so
   // its theme background stays faintly. A transparent bar wins over it.
   property bool glassy: false
+  // My Bar: bar.locked in shell.json. No widget reordering, no dragging the
+  // bar to another edge, and no double-click background cycling.
+  property bool locked: false
+  // My Bar: bar.backgroundOpacity in shell.json, 0 (invisible) to 1 (solid).
+  // Applies to the opaque background; glassy and clear keep their own looks.
+  property real backgroundOpacity: 1.0
+  // My Bar: bar.screens in shell.json, the connector names to put a bar on
+  // (e.g. ["DP-1", "HDMI-A-1"]). Missing or empty means every screen.
+  property var screenNames: []
+  readonly property var barScreens: Quickshell.screens.filter(function(screen) {
+    return screen && (root.screenNames.length === 0 || root.screenNames.indexOf(screen.name) !== -1)
+  })
   // The look the blur behind the bar was last synced for. A background set by
   // editing shell.json skips the CLI, so the bar syncs Hyprland's blur itself.
   property string glassSyncedLook: ""
@@ -87,6 +99,7 @@ Item {
   property bool foregroundAnimationEnabled: true
   property color background: Commons.Color.bar.background
   readonly property color glassBackground: Qt.rgba(background.r, background.g, background.b, Math.min(background.a, 0.35))
+  readonly property color solidBackground: Qt.rgba(background.r, background.g, background.b, background.a * backgroundOpacity)
   property color urgent: Commons.Color.bar.active
 
   // A theme change cross-fades the bar's colors. Cycling the background
@@ -794,6 +807,13 @@ Item {
     var config = Util.isPlainObject(barConfig) ? barConfig : fallbackBarConfig
 
     position = normalizePosition(config.position)
+    locked = config.locked === true
+    backgroundOpacity = typeof config.backgroundOpacity === "number"
+      ? Math.max(0, Math.min(1, config.backgroundOpacity))
+      : 1.0
+    screenNames = Array.isArray(config.screens)
+      ? config.screens.filter(function(name) { return typeof name === "string" && name !== "" })
+      : []
     // opaque, glassy or none; a config from before background says
     // transparent instead.
     var look = config.background || (config.transparent === true ? "none" : "opaque")
@@ -1670,7 +1690,7 @@ Item {
   }
 
   Variants {
-    model: Quickshell.screens
+    model: root.barScreens
 
     delegate: Component {
       BarPanel {
@@ -1682,7 +1702,7 @@ Item {
   }
 
   Variants {
-    model: Quickshell.screens
+    model: root.barScreens
 
     delegate: Component {
       DragGhostPanel {
@@ -1695,7 +1715,7 @@ Item {
   }
 
   Variants {
-    model: Quickshell.screens
+    model: root.barScreens
 
     delegate: Component {
       BarMoveGhostPanel {
@@ -1835,7 +1855,7 @@ Item {
 
       Rectangle {
         anchors.fill: parent
-        color: root.transparent ? "transparent" : (root.glassy ? root.glassBackground : root.background)
+        color: root.transparent ? "transparent" : (root.glassy ? root.glassBackground : root.solidBackground)
       }
 
       Loader {
@@ -2493,7 +2513,7 @@ Item {
     pressAndHoldInterval: 200
 
     function startDrag(x, y) {
-      if (dragging) return
+      if (dragging || root.locked) return
       dragging = true
       root.beginBarMove(root.targetWindow(gestureArea))
       var scenePoint = gestureArea.mapToItem(null, x, y)
@@ -2554,7 +2574,7 @@ Item {
         suppressClick = false
         return
       }
-      if (mouse.button === Qt.LeftButton) {
+      if (mouse.button === Qt.LeftButton && !root.locked) {
         root.cycleBackground()
         mouse.accepted = true
       }
@@ -3054,7 +3074,7 @@ Item {
       property var heldTarget: null
       property real pressedX: 0
       property real pressedY: 0
-      readonly property bool canReorder: root.shell && typeof root.shell.mutateShellConfig === "function"
+      readonly property bool canReorder: !root.locked && root.shell && typeof root.shell.mutateShellConfig === "function"
       readonly property real dragThreshold: Style.space(4)
 
       anchors.fill: parent

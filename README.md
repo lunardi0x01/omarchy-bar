@@ -1,4 +1,59 @@
-# Omarchy bar
+# My Bar
+
+Omarchy's status bar (`omarchy.bar`), cloned with `omarchy plugin clone
+omarchy.bar` from Omarchy 4.5.0, with three additions. Everything else is
+upstream; the first commit in this repo is the unmodified clone, so
+`git diff` against it shows exactly what My Bar changes.
+
+## What it adds
+
+All three are settings under `bar` in `~/.config/omarchy/shell.json` and
+default to stock behaviour when left out.
+
+| Setting | Default | Effect |
+|---------|---------|--------|
+| `locked` | `false` | `true` turns off dragging widgets to reorder them, dragging the bar to another screen edge, and double-click to cycle the background. |
+| `backgroundOpacity` | `1` | Opacity of the opaque background, `0` to `1`. The glassy and clear backgrounds keep their own looks. |
+| `screens` | all screens | Connector names to put a bar on, e.g. `["DP-1", "HDMI-A-1"]`. Handy for leaving out a virtual or mirrored output. |
+
+```json
+"bar": {
+  "id": "lunardi0x01.bar",
+  "locked": true,
+  "backgroundOpacity": 0.7,
+  "screens": ["DP-1", "HDMI-A-1"],
+  ...
+}
+```
+
+## Install
+
+```bash
+git clone https://github.com/lunardi0x01/omarchy-bar ~/Projects/Omarchy/plugins/lunardi0x01.bar
+ln -s ~/Projects/Omarchy/plugins/lunardi0x01.bar ~/.config/omarchy/plugins/lunardi0x01.bar
+omarchy-shell shell rescanPlugins
+omarchy plugin enable lunardi0x01.bar
+omarchy restart shell
+```
+
+After pulling an update, run `omarchy restart shell`: a live reload doesn't
+re-create the bar windows.
+
+## Updating to a new Omarchy release
+
+Re-clone the stock bar and re-apply the changes: commit the fresh
+`omarchy plugin clone omarchy.bar` output over the files here, then carry the
+three settings forward (search `Bar.qml` for `My Bar:`).
+
+## License
+
+MIT. See [LICENSE](LICENSE), which keeps the upstream Omarchy notice.
+
+---
+
+The upstream README follows.
+
+# Omarchy bar (upstream)
 
 This is the Quickshell implementation of the Omarchy status bar. It is
 shipped as a first-party plugin of [`omarchy-shell`](../../README.md), the
